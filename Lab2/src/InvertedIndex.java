@@ -5,7 +5,7 @@ import java.util.StringTokenizer;
 import java.util.Iterator;
 
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapred.FileSplit;
+import org.apache.hadoop.mapred.lib.input.FileSplit;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.Job;
@@ -20,10 +20,11 @@ public class InvertedIndex {
             FileSplit file = (FileSplit)context.getInputSplit();
             String fileName = file.getPath().getName();
             Text fileNameText = new Text(fileName);
-            StringTokenizer itr = new StringTokenizer(value.toString());
+            StringTokenizer itr = new StringTokenizer(value.toString(),"\t\n\r\f,.:;?![]\"");
 
             while (itr.hasMoreTokens()) {
                 String token = itr.nextToken();
+                token=token.toLowerCase();
                 context.write(new Text(token), fileNameText);
             }
         }
