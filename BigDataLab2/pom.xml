@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>BigDateLab</groupId>
-    <artifactId>InvertedIndex</artifactId>
+    <artifactId>Sort</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
@@ -25,7 +25,7 @@
                     <archive>
                         <manifest>
                             <!--main（）所在的类，注意修改-->
-                            <mainClass>InvertedIndex</mainClass>
+                            <mainClass>Sort</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
