@@ -20,7 +20,7 @@ public class InvertedIndex {
             FileSplit file = (FileSplit)context.getInputSplit();
             String fileName = file.getPath().getName();
             Text fileNameText = new Text(fileName);
-            StringTokenizer itr = new StringTokenizer(value.toString(),"\t\n\r\f,.:;?![]\"");
+            StringTokenizer itr = new StringTokenizer(value.toString(),"\t\n\r\f,.:;?![]\"\40-()'");
 
             while (itr.hasMoreTokens()) {
                 String token = itr.nextToken();
