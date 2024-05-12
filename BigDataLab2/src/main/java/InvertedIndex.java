@@ -54,8 +54,8 @@ public class InvertedIndex {
             }
             context.write(new Text(towrite), new Text(sb.toString()));
         }
-
-
+    
+        
     }
     public static void main(String[] args) throws Exception {
         Configuration conf = new Configuration();
