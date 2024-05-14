@@ -3,6 +3,8 @@ import java.util.Map;
 import java.io.IOException;
 import java.util.StringTokenizer;
 import java.util.Iterator;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
@@ -20,13 +22,19 @@ public class InvertedIndex {
             FileSplit file = (FileSplit)context.getInputSplit();
             String fileName = file.getPath().getName();
             Text fileNameText = new Text(fileName);
-            StringTokenizer itr = new StringTokenizer(value.toString(),"\t\n\r\f,.:;?![]\"\40-()'");
-
-            while (itr.hasMoreTokens()) {
-                String token = itr.nextToken();
-                token=token.toLowerCase();
+            Pattern pattern = Pattern.compile("\\w+(-\\w+)*('\\w+)?", Pattern.CASE_INSENSITIVE);
+            Matcher matcher = pattern.matcher(value.toString());
+//            StringTokenizer itr = new StringTokenizer(value.toString(),"\t\n\r\f,.:;?![]\"\40-()'");
+            while (matcher.find()) {
+                String token = matcher.group();
+                token = token.toLowerCase();
                 context.write(new Text(token), fileNameText);
             }
+//            while (itr.hasMoreTokens()) {
+//                String token = itr.nextToken();
+//                token=token.toLowerCase();
+//                context.write(new Text(token), fileNameText);
+//            }
         }
     }
     public static class InvertedIndexReducer extends Reducer<Text, Text, Text, Text> {
