@@ -61,14 +61,19 @@ public class InvertedIndex {
         Configuration conf = new Configuration();
         Job job = Job.getInstance(conf, "InvertedIndex");
         job.setJarByClass(InvertedIndex.class);
+
         job.setMapperClass(InvertedIndexMapper.class);
         job.setReducerClass(InvertedIndexReducer.class);
+
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(Text.class);
+
         job.setMapOutputKeyClass(Text.class);
         job.setMapOutputValueClass(Text.class);
+
         job.setInputFormatClass(TextInputFormat.class);
         job.setOutputFormatClass(TextOutputFormat.class);
+
         FileInputFormat.addInputPath(job, new Path(args[0]));
         FileOutputFormat.setOutputPath(job, new Path(args[1]));
         System.exit(job.waitForCompletion(true) ? 0 : 1);

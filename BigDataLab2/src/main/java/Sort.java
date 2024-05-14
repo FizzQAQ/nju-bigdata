@@ -19,7 +19,6 @@ public class Sort {
                 String token = itr.nextToken();
                 String[] parts1 = token.split("\\s+");
                 String[] parts2 = parts1[1].split(",");
-                System.out.println(parts1[0]);
                 context.write(new FloatWritable(Float.parseFloat(parts2[0])), new Text(parts1[0]));
             }
         }
@@ -27,8 +26,8 @@ public class Sort {
     public static class SortReducer extends Reducer<FloatWritable, Text, Text, FloatWritable> {
         @Override
         public void reduce(FloatWritable key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
-            for (Text value : values) {
-                context.write(value, key);
+            for (Text v : values) {
+                context.write(v,key);
             }
         }
     }
@@ -36,16 +35,20 @@ public class Sort {
         Configuration conf = new Configuration();
         Job job = Job.getInstance(conf, "Sort");
         job.setJarByClass(Sort.class);
+
         job.setMapperClass(SortMapper.class);
         job.setReducerClass(SortReducer.class);
+
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(Text.class);
+
         job.setMapOutputKeyClass(FloatWritable.class);
         job.setMapOutputValueClass(Text.class);
-        job.setInputFormatClass(KeyValueTextInputFormat.class);
-        job.setOutputFormatClass(TextOutputFormat.class);
+
         FileInputFormat.addInputPath(job, new Path(args[0]));
         FileOutputFormat.setOutputPath(job, new Path(args[1]));
+
         System.exit(job.waitForCompletion(true) ? 0 : 1);
     }
+
 }
