@@ -19,7 +19,7 @@
                     <archive>
                         <manifest>
                             <!-- main（）所在的类，注意修改 -->
-                            <mainClass>Count</mainClass>
+                            <mainClass>Driver</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

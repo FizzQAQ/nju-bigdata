@@ -10,7 +10,7 @@ import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import java.io.IOException;
 
 public class Driver {
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws IOException, InterruptedException, ClassNotFoundException {
         // Job1
 
         Configuration conf = new Configuration();
