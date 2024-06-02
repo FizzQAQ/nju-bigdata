@@ -7,11 +7,9 @@ import org.apache.hadoop.mapreduce.Reducer;
 import java.util.Iterator;
 import java.util.TreeSet;
 
-
 public class EdgeList {
 
     public static class EdgeListMapper extends Mapper<Object, Text, Text, Text> {
-
 
         public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
             String temp = value.toString().split("\t")[0];
@@ -28,14 +26,14 @@ public class EdgeList {
                 treeSet.add(val.toString());
             }
 
-            String list = "";
+            StringBuilder list = new StringBuilder();
             Iterator<String> it = treeSet.iterator();
             while (it.hasNext()) {
-                list += it.next();
+                list.append(it.next());
                 if (it.hasNext())
-                    list += ",";
+                    list.append(",");
             }
-            context.write(key, new Text(list));
+            context.write(key, new Text(list.toString()));
         }
     }
 }

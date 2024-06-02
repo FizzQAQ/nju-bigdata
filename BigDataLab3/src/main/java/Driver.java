@@ -46,8 +46,8 @@ public class Driver {
         job2.setOutputFormatClass(TextOutputFormat.class);
 
 
-        FileInputFormat.addInputPath(job1, new Path(args[1] + "/output1"));
-        FileOutputFormat.setOutputPath(job1, new Path(args[1] + "/output2"));
+        FileInputFormat.addInputPath(job2, new Path(args[1] + "/output1"));
+        FileOutputFormat.setOutputPath(job2, new Path(args[1] + "/output2"));
         job2.waitForCompletion(true);
 
         //job3
@@ -64,8 +64,8 @@ public class Driver {
 
         job3.setOutputFormatClass(TextOutputFormat.class);
 
-        FileInputFormat.addInputPath(job1, new Path(args[1]+"/output2"));
-        FileOutputFormat.setOutputPath(job1, new Path(args[1] + "/output3"));
+        FileInputFormat.addInputPath(job3, new Path(args[1]+"/output2"));
+        FileOutputFormat.setOutputPath(job3, new Path(args[1] + "/output3"));
 
         job3.waitForCompletion(true);
 
