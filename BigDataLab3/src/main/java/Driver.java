@@ -14,15 +14,15 @@ public class Driver {
         // Job1
 
         Configuration conf = new Configuration();
-        Job job1 = new Job(conf, "Edge Process");
+        Job job1 = Job.getInstance(conf, "Edge Process");
         job1.setJarByClass(EdgeProcess.class);
         job1.setInputFormatClass(TextInputFormat.class);
 
         job1.setOutputKeyClass(Text.class);
         job1.setOutputValueClass(Text.class);
 
-        job1.setMapperClass(EdgeProcess.GetEdgeMapper.class);
-        job1.setReducerClass(EdgeProcess.GetEdgeReducer.class);
+        job1.setMapperClass(EdgeProcess.EdgeProcessMapper.class);
+        job1.setReducerClass(EdgeProcess.EdgeProcessReducer.class);
 
         job1.setOutputFormatClass(TextOutputFormat.class);
 
@@ -33,15 +33,15 @@ public class Driver {
 
         //job2
 
-        Job job2 = new Job(conf, "Edge Process");
-        job2.setJarByClass(EdgeProcess.class);
+        Job job2 = Job.getInstance(conf, "Edge List");
+        job2.setJarByClass(EdgeList.class);
         job2.setInputFormatClass(TextInputFormat.class);
 
         job2.setOutputKeyClass(Text.class);
         job2.setOutputValueClass(Text.class);
 
-        job2.setMapperClass(EdgeProcess.GetEdgeMapper.class);
-        job2.setReducerClass(EdgeProcess.GetEdgeReducer.class);
+        job2.setMapperClass(EdgeList.EdgeListMapper.class);
+        job2.setReducerClass(EdgeList.EdgeListReducer.class);
 
         job2.setOutputFormatClass(TextOutputFormat.class);
 
@@ -52,15 +52,15 @@ public class Driver {
 
         //job3
 
-        Job job3 = new Job(conf, "Edge Process");
-        job3.setJarByClass(EdgeProcess.class);
+        Job job3 = Job.getInstance(conf, "Triangle Count");
+        job3.setJarByClass(TriangleCount.class);
         job3.setInputFormatClass(TextInputFormat.class);
 
         job3.setOutputKeyClass(Text.class);
         job3.setOutputValueClass(Text.class);
 
-        job3.setMapperClass(EdgeProcess.GetEdgeMapper.class);
-        job3.setReducerClass(EdgeProcess.GetEdgeReducer.class);
+        job3.setMapperClass(TriangleCount.TriangleCountMapper.class);
+        job3.setReducerClass(TriangleCount.TriangleCountReducer.class);
 
         job3.setOutputFormatClass(TextOutputFormat.class);
 
