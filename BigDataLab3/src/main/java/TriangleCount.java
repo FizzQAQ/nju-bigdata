@@ -17,6 +17,7 @@ public class TriangleCount {
                 String[] str = line[1].split(",");
                 for (int i = 0; i < str.length - 1; i++) {
                     for (int j = i + 1; j < str.length; j++) {
+                        // 需要存在的边
                         context.write(new Text(str[i]), new Text(str[j]));// 若存在该边则存在一个三角形
                     }
                 }
@@ -26,13 +27,14 @@ public class TriangleCount {
 
     public static class TriangleCountReducer extends Reducer<Text, Text, Text, Text> {
         int num;
+
         public void reduce(Text key, Iterable<Text> values, Context context) {
             HashSet<String> set = new HashSet<>();
             ArrayList<String> list = new ArrayList<>();
             for (Text val : values) {
                 String tmp = val.toString();
                 if (tmp.startsWith("edge:")) {
-                    tmp = tmp.substring(4);
+                    tmp = tmp.substring(5);
                     String[] array = tmp.split(",");
                     set.addAll(Arrays.asList(array));
                 } else {

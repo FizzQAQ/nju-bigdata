@@ -12,14 +12,20 @@ public class EdgeProcess {
             String[] websiteId = value.toString().split(", ");
             String edge = null;
             String val = "2";
-            int id1 = Integer.parseInt(websiteId[0]);
-            int id2 = Integer.parseInt(websiteId[1]);
-            if (id1 < id2) {
+            if (websiteId[0].compareTo(websiteId[1]) < 0) {
                 edge = websiteId[0] + " " + websiteId[1];
-            } else if (id2 < id1) {
+            } else if (websiteId[0].compareTo(websiteId[1]) > 0) {
                 edge = websiteId[1] + " " + websiteId[0];
                 val = "1";
             }
+            // int id1 = Integer.parseInt(websiteId[0]);
+            // int id2 = Integer.parseInt(websiteId[1]);
+            // if (id1 < id2) {
+            // edge = websiteId[0] + " " + websiteId[1];
+            // } else if (id2 < id1) {
+            // edge = websiteId[1] + " " + websiteId[0];
+            // val = "1";
+            // }
             context.write(new Text(edge), new Text(val));
         }
     }
