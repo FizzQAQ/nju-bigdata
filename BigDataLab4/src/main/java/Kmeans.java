@@ -12,15 +12,18 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.fs.Path;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
 public class Kmeans {
-    
+
     public static class KmeansMapper extends Mapper<LongWritable, Text, IntWritable, Text> {
-        
+
         private List<double[]> clusters = new ArrayList<double[]>();
+
         protected void setup(Context context) throws IOException, InterruptedException {
             Configuration conf = context.getConfiguration();
             FileSystem fs = FileSystem.get(conf);
@@ -28,20 +31,27 @@ public class Kmeans {
             BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
             String line;
             while ((line = br.readLine()) != null) {
-                String[] temp = line.split(",: ");
-                double[] cluster = new double[temp.length-1];
-                for (int i = 0; i < temp.length-1; i++) {
-                    cluster[i] = Double.parseDouble(temp[i+1]);
+                line = line.replace(" ", "");
+                String[] temp = line.split("[,:]");
+                //System.out.println(temp.length);
+                //System.out.println("temp = " + Arrays.toString(temp));
+                double[] cluster = new double[temp.length - 1];
+                for (int i = 0; i < temp.length - 1; i++) {
+                    cluster[i] = Double.parseDouble(temp[i + 1]);
+                    //System.out.println(temp[i + 1]);
                 }
+                //System.out.println("double = " + Arrays.toString(cluster));
                 clusters.add(cluster);
             }
             br.close();
         }
+
         public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
-            String[] temp = value.toString().split(",: ");
-            double[] data = new double[temp.length-1];
-            for (int i = 0; i < temp.length-1; i++) {
-                data[i] = Double.parseDouble(temp[i+1]);
+            String[] temp = value.toString().replace(" ", "").split("[,:]");
+            double[] data = new double[temp.length - 1];
+
+            for (int i = 0; i < temp.length - 1; i++) {
+                data[i] = Double.parseDouble(temp[i + 1]);
             }
             double minDistance = Double.MAX_VALUE;
             int clusterIndex = -1;
@@ -50,25 +60,27 @@ public class Kmeans {
                 for (int j = 0; j < data.length; j++) {
                     distance += Math.pow(data[j] - clusters.get(i)[j], 2);
                 }
+                System.out.println("distance :" + distance);
+
                 if (distance < minDistance) {
                     minDistance = distance;
                     clusterIndex = i;
                 }
             }
-            System.out.println("map-key :" + clusterIndex + "map-value: " + value.toString());
+            System.out.println("map-key :" + clusterIndex + "  map-value: " + value.toString());
             context.write(new IntWritable(clusterIndex), new Text(value.toString()));
         }
     }
-    
-    public static class KmeansReducer extends Reducer<IntWritable,Text, IntWritable, Text> {
-        
+
+    public static class KmeansReducer extends Reducer<IntWritable, Text, IntWritable, Text> {
+
         public void reduce(IntWritable key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
             List<double[]> dataList = new ArrayList<double[]>();
             for (Text value : values) {
-                String[] temp = value.toString().split(",: ");
-                double[] data = new double[temp.length-1];
-                for (int i = 0; i < temp.length-1; i++) {
-                    data[i] = Double.parseDouble(temp[i+1]);
+                String[] temp = value.toString().replace(" ", "").split("[,:]");
+                double[] data = new double[temp.length - 1];
+                for (int i = 0; i < temp.length - 1; i++) {
+                    data[i] = Double.parseDouble(temp[i + 1]);
                 }
                 dataList.add(data);
             }
@@ -83,11 +95,10 @@ public class Kmeans {
             String out = ": ";
             for (int i = 0; i < newCluster.length; i++) {
                 out += newCluster[i];
-                if(i != newCluster.length-1) {
+                if (i != newCluster.length - 1) {
                     out += ", ";
                 }
             }
-            System.out.println("reduce-result:" + " key:" + key + " out: " + out);
             context.write(key, new Text(out));
         }
     }

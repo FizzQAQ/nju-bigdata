@@ -18,10 +18,8 @@ public class KmeansUtils {
         FSDataInputStream inputStream = fs.open(new Path(path));
         BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
         String line;
-        System.out.println(path);
         while ((line = br.readLine()) != null) {
-            System.out.println(line);
-            String[] parts = line.split(",; ");
+            String[] parts = line.replace(" ", "").split("[,:]");
             double[] centroid = new double[parts.length-1];
             for (int i = 0; i < parts.length-1; i++) {
                 centroid[i] = Double.parseDouble(parts[i+1]);
