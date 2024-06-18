@@ -15,12 +15,12 @@ public class KmeansUtils {
     public static List<double[]> readCentroids(String path) throws IOException {
         List<double[]> centroids = new ArrayList<>();
         FileSystem fs = FileSystem.get(new Configuration());
-        FileStatus[] status = fs.listStatus(new Path(path));
-        FileStatus file = status[0];
-        FSDataInputStream inputStream = fs.open(file.getPath());
+        FSDataInputStream inputStream = fs.open(new Path(path));
         BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
         String line;
+        System.out.println(path);
         while ((line = br.readLine()) != null) {
+            System.out.println(line);
             String[] parts = line.split(",; ");
             double[] centroid = new double[parts.length-1];
             for (int i = 0; i < parts.length-1; i++) {

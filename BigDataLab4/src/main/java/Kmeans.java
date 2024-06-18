@@ -24,9 +24,7 @@ public class Kmeans {
         protected void setup(Context context) throws IOException, InterruptedException {
             Configuration conf = context.getConfiguration();
             FileSystem fs = FileSystem.get(conf);
-            FileStatus[] status = fs.listStatus(new Path(conf.get("centroidsPath")));
-            FileStatus file = status[0];
-            FSDataInputStream inputStream = fs.open(file.getPath());
+            FSDataInputStream inputStream = fs.open(new Path(conf.get("centroidsPath")));
             BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
             String line;
             while ((line = br.readLine()) != null) {
@@ -57,6 +55,7 @@ public class Kmeans {
                     clusterIndex = i;
                 }
             }
+            System.out.println("map-key :" + clusterIndex + "map-value: " + value.toString());
             context.write(new IntWritable(clusterIndex), new Text(value.toString()));
         }
     }
@@ -88,6 +87,7 @@ public class Kmeans {
                     out += ", ";
                 }
             }
+            System.out.println("reduce-result:" + " key:" + key + " out: " + out);
             context.write(key, new Text(out));
         }
     }
