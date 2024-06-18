@@ -11,10 +11,10 @@ public class KmeansUtils {
         BufferedReader br = new BufferedReader(new FileReader(path));
         String line;
         while ((line = br.readLine()) != null) {
-            String[] parts = line.split(",");
-            double[] centroid = new double[parts.length];
-            for (int i = 0; i < parts.length; i++) {
-                centroid[i] = Double.parseDouble(parts[i]);
+            String[] parts = line.split(",; ");
+            double[] centroid = new double[parts.length-1];
+            for (int i = 0; i < parts.length-1; i++) {
+                centroid[i] = Double.parseDouble(parts[i+1]);
             }
             centroids.add(centroid);
         }
