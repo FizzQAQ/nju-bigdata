@@ -1,21 +1,20 @@
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
-import java.util.StringTokenizer;
+import java.io.InputStreamReader;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataInputStream;
+import org.apache.hadoop.fs.FileStatus;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
-import org.apache.hadoop.fs.*;
+import org.apache.hadoop.fs.Path;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.TreeSet;
 
-import javax.naming.Context;
 
 public class Kmeans {
     
@@ -24,8 +23,11 @@ public class Kmeans {
         private List<double[]> clusters = new ArrayList<double[]>();
         protected void setup(Context context) throws IOException, InterruptedException {
             Configuration conf = context.getConfiguration();
-            Path path = new Path(conf.get("centroidsPath"));
-            BufferedReader br = new BufferedReader(new FileReader(String.valueOf(path)));
+            FileSystem fs = FileSystem.get(conf);
+            FileStatus[] status = fs.listStatus(new Path(conf.get("centroidsPath")));
+            FileStatus file = status[0];
+            FSDataInputStream inputStream = fs.open(file.getPath());
+            BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
             String line;
             while ((line = br.readLine()) != null) {
                 String[] temp = line.split(",: ");

@@ -1,6 +1,12 @@
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataInputStream;
+import org.apache.hadoop.fs.FileStatus;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,7 +14,11 @@ public class KmeansUtils {
 
     public static List<double[]> readCentroids(String path) throws IOException {
         List<double[]> centroids = new ArrayList<>();
-        BufferedReader br = new BufferedReader(new FileReader(path));
+        FileSystem fs = FileSystem.get(new Configuration());
+        FileStatus[] status = fs.listStatus(new Path(path));
+        FileStatus file = status[0];
+        FSDataInputStream inputStream = fs.open(file.getPath());
+        BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
         String line;
         while ((line = br.readLine()) != null) {
             String[] parts = line.split(",; ");
