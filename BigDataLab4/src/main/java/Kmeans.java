@@ -1,12 +1,15 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.StringTokenizer;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
-
+import org.apache.hadoop.fs.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -18,11 +21,11 @@ public class Kmeans {
     
     public static class KmeansMapper extends Mapper<LongWritable, Text, IntWritable, Text> {
         
-        private List<double[]> clusters=new ArrayList<double[]>();
+        private List<double[]> clusters = new ArrayList<double[]>();
         protected void setup(Context context) throws IOException, InterruptedException {
             Configuration conf = context.getConfiguration();
             Path path = new Path(conf.get("centroidsPath"));
-            BufferedReader br = new BufferedReader(new FileReader(path));
+            BufferedReader br = new BufferedReader(new FileReader(String.valueOf(path)));
             String line;
             while ((line = br.readLine()) != null) {
                 String[] temp = line.split(",: ");

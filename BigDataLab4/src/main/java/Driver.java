@@ -1,8 +1,9 @@
-import java.nio.file.FileSystem;
+import org.apache.hadoop.fs.FileSystem;
 import java.util.List;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
@@ -19,15 +20,13 @@ public class Driver {
         String outputPath = args[2];
         String tempOutputPath = outputPath + "_temp";
         conf.set("centroidsPath", centroidsPath);
-        boolean converged=0;
+        boolean converged = false;
         while (!converged) {
             Job job = Job.getInstance(conf, "K-Means Clustering");
-            job.setJarByClass(KMeansDriver.class);
-            job.setMapperClass(KMeansMapper.class);
-            job.setReducerClass(KMeansReducer.class);
+            job.setJarByClass(Kmeans.class);
+            job.setMapperClass(Kmeans.KmeansMapper.class);
+            job.setReducerClass(Kmeans.KmeansReducer.class);
 
-            job.setMapOutputKeyClass(IntWritable.class);
-            job.setMapOutputValueClass(Text.class);
             job.setOutputKeyClass(IntWritable.class);
             job.setOutputValueClass(Text.class);
 
@@ -39,11 +38,11 @@ public class Driver {
             }
 
             // 比较新的簇中心和旧的簇中心
-            List<double[]> oldCentroids = KMeansUtils.readCentroids(centroidsPath);
-            List<double[]> newCentroids = KMeansUtils.readCentroids(tempOutputPath + "/part-r-00000");
+            List<double[]> oldCentroids = KmeansUtils.readCentroids(centroidsPath);
+            List<double[]> newCentroids = KmeansUtils.readCentroids(tempOutputPath + "/part-r-00000");
 
-            double maxDelta = KMeansUtils.calculateMaxDelta(oldCentroids, newCentroids);
-            if (maxDelta ==0) {
+            double maxDelta = KmeansUtils.calculateMaxDelta(oldCentroids, newCentroids);
+            if (maxDelta == 0) {
                 converged = true;
             } else {
                 // 更新簇中心文件
