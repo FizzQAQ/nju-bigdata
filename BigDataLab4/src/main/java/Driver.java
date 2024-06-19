@@ -61,7 +61,6 @@ public class Driver {
                 fs.delete(new Path(tempOutputPath), true);
             }
         }
-        //fs.rename(new Path(tempOutputPath), new Path(outputPath));
         FSDataInputStream inputStream = fs.open(new Path(tempOutputPath + "/part-r-00000"));
         List<String> lines = new ArrayList<>();
         String line;
@@ -71,12 +70,12 @@ public class Driver {
             lines.add(parts);
         }
         br.close();
-        FSDataOutputStream out=fs.create(new Path(outputPath));
+        fs.delete(new Path(tempOutputPath+ "/part-r-00000"), true);
+        FSDataOutputStream out=fs.create(new Path(tempOutputPath+ "/part-r-00000"));
         for (String l : lines) {
             out.writeBytes(l + "\n");
         }
-        fs.delete(new Path(tempOutputPath), true);
+        fs.rename(new Path(tempOutputPath), new Path(outputPath));
         out.close();
-        
     }
 }
