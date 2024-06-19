@@ -18,10 +18,11 @@ public class Driver {
         String centroidsPath = args[1];
         String outputPath = args[2];
         String tempOutputPath = outputPath + "_temp";
-        String tempCenterPath = tempOutputPath+ "\\center.data";
+        String tempCenterPath = tempOutputPath+ "/center.data";
         FileSystem fs = FileSystem.get(conf);
         FileUtil.copy(fs, new Path(centroidsPath), fs, new Path(tempCenterPath),false,conf);
         conf.set("centroidsPath", tempCenterPath);
+        centroidsPath = tempCenterPath;
         boolean converged = false;
         while (!converged) {
             Job job = Job.getInstance(conf, "K-Means Clustering");
