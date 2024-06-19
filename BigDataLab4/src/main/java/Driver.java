@@ -1,4 +1,11 @@
+import org.apache.hadoop.fs.FSDataInputStream;
+import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.hadoop.conf.Configuration;
@@ -54,6 +61,22 @@ public class Driver {
                 fs.delete(new Path(tempOutputPath), true);
             }
         }
-        fs.rename(new Path(tempOutputPath), new Path(outputPath));
+        //fs.rename(new Path(tempOutputPath), new Path(outputPath));
+        FSDataInputStream inputStream = fs.open(new Path(tempOutputPath + "/part-r-00000"));
+        List<String> lines = new ArrayList<>();
+        String line;
+        BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
+        while ((line = br.readLine()) != null) {
+            String parts = line.replace(":", "");
+            lines.add(parts);
+        }
+        br.close();
+        FSDataOutputStream out=fs.create(new Path(outputPath));
+        for (String l : lines) {
+            out.writeBytes(l + "\n");
+        }
+        fs.delete(new Path(tempOutputPath), true);
+        out.close();
+        
     }
 }
