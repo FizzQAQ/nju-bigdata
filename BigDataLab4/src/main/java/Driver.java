@@ -48,10 +48,8 @@ public class Driver {
             if (maxDelta == 0) {
                 converged = true;
             } else {
-                // 更新簇中心文件
 
                 fs.delete(new Path(centroidsPath), true);
-                fs.delete(new Path("center_temp"), true);
                 fs.rename(new Path(tempOutputPath + "/part-r-00000"), new Path(centroidsPath));
                 fs.delete(new Path(tempOutputPath), true);
             }
