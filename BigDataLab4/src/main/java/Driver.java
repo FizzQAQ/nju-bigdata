@@ -2,6 +2,7 @@ import org.apache.hadoop.fs.FileSystem;
 import java.util.List;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileUtil;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
@@ -17,7 +18,10 @@ public class Driver {
         String centroidsPath = args[1];
         String outputPath = args[2];
         String tempOutputPath = outputPath + "_temp";
-        conf.set("centroidsPath", centroidsPath);
+        String tempCenterPath = tempOutputPath+ "\\center.data";
+        FileSystem fs = FileSystem.get(conf);
+        FileUtil.copy(fs, new Path(centroidsPath), fs, new Path(tempCenterPath),false,conf);
+        conf.set("centroidsPath", tempCenterPath);
         boolean converged = false;
         while (!converged) {
             Job job = Job.getInstance(conf, "K-Means Clustering");
@@ -44,15 +48,12 @@ public class Driver {
                 converged = true;
             } else {
                 // 更新簇中心文件
-                FileSystem fs = FileSystem.get(conf);
+
                 fs.delete(new Path(centroidsPath), true);
                 fs.rename(new Path(tempOutputPath + "/part-r-00000"), new Path(centroidsPath));
                 fs.delete(new Path(tempOutputPath), true);
             }
         }
-
-        // 将最终结果移动到输出目录
-        FileSystem fs = FileSystem.get(conf);
         fs.rename(new Path(tempOutputPath), new Path(outputPath));
     }
 }
