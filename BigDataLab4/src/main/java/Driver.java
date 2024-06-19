@@ -18,7 +18,7 @@ public class Driver {
         String centroidsPath = args[1];
         String outputPath = args[2];
         String tempOutputPath = outputPath + "_temp";
-        String tempCenterPath = tempOutputPath+ "/center.data";
+        String tempCenterPath = "center_temp/center.data";
         FileSystem fs = FileSystem.get(conf);
         FileUtil.copy(fs, new Path(centroidsPath), fs, new Path(tempCenterPath),false,conf);
         conf.set("centroidsPath", tempCenterPath);
@@ -51,6 +51,7 @@ public class Driver {
                 // 更新簇中心文件
 
                 fs.delete(new Path(centroidsPath), true);
+                fs.delete(new Path("center_temp"), true);
                 fs.rename(new Path(tempOutputPath + "/part-r-00000"), new Path(centroidsPath));
                 fs.delete(new Path(tempOutputPath), true);
             }
