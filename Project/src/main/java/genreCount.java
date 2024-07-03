@@ -23,7 +23,7 @@ public class genreCount {
         public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
             String[] temp = value.toString().split(" ,\t");
             if(temp[0]!="#"&&temp[0]!="%"){
-                context.write(Text(temp[0]),new Text(temp[1]));
+                context.write(new Text(temp[0]),new Text(temp[1]));
             }
         }
     }
