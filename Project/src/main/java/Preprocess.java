@@ -1,4 +1,3 @@
-import ncsa.hdf.hdf5lib.exceptions.HDF5Exception;
 
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
@@ -18,7 +17,9 @@ public class Preprocess {
         @Override
         public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
             String inputPath =value.toString();
-            read_H5(inputPath,context);
+            System.out.println(inputPath);
+            context.write(new Text(inputPath),new Text(""));
+            //read_H5(inputPath,context);
         }
         private void read_H5(String filePath,Context context){
             FileFormat fileFormat = FileFormat.getFileFormat(FileFormat.FILE_TYPE_HDF5);
@@ -37,11 +38,6 @@ public class Preprocess {
             try {
                 extractAttributes(root, context);
             } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-            try {
-                h5File.close();
-            } catch (HDF5Exception e) {
                 throw new RuntimeException(e);
             }
         }

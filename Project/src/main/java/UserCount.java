@@ -21,8 +21,8 @@ public class UserCount {
     public static class UserCountMapper extends Mapper<Object, Text, Text, Text> {
         @Override
         public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
-            String[] temp = value.toString().split(" ,\t");
-            if(temp[0]!="#"&&temp[0]!="%"){
+            String[] temp = value.toString().split("[ ,\t]");
+            if(temp[0].charAt(0)!='#'&&temp[0].charAt(0)!='%'){
                 context.write(new Text(temp[0]),new Text(temp[1]+","+temp[2]));
             }
         }
@@ -32,7 +32,7 @@ public class UserCount {
         public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
             for(Text value:values){
                 String wordcount=value.toString();
-                String out=",";
+                String out="";
                 out+=wordcount;
                 context.write(key,new Text(out));
             }

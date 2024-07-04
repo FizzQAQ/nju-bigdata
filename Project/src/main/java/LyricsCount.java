@@ -32,7 +32,7 @@ public class LyricsCount {
             String line;
             while ((line = br.readLine()) != null) {
                 if(line.charAt(0)=='%'){
-                    String[] temp=line.split("%,");
+                    String[] temp=line.split("[%,]");
                     for (String s : temp){
                     dict.add(s);
                     }
@@ -45,8 +45,8 @@ public class LyricsCount {
         }
         @Override
         public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
-            String[] temp = value.toString().split(" ,");
-            if(temp[0]!="#"&&temp[0]!="%"){
+            String[] temp = value.toString().split("[ ,]");
+            if(temp[0].charAt(0)!='#'&&temp[0].charAt(0)!='%'){
                 String track_id=temp[0];
                 int length=temp.length;
                 for(int i=2;i<length;i++){
@@ -61,7 +61,7 @@ public class LyricsCount {
     public static class LyricsCountReducer extends Reducer<Text, Text, Text, Text>{
         @Override
         public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
-            String out=",[";
+            String out="[";
             for(Text value:values){
                 String wordcount=value.toString();
                 out+=wordcount+",";
