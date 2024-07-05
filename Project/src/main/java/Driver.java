@@ -2,26 +2,14 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.FileStatus;
-import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 
 import java.io.IOException;
 
 public class Driver {
-    private static void addInputPaths(FileSystem fs, Path path, Job job) throws IOException {
-        FileStatus[] fileStatuses = fs.listStatus(path);
-        for (FileStatus status : fileStatuses) {
-            if (status.isDirectory()) {
-                addInputPaths(fs, status.getPath(), job);  // 递归遍历子目录
-            } else {
-                FileInputFormat.addInputPath(job, status.getPath());
-            }
-        }
-    }
     public static void main(String[] args) throws IOException, InterruptedException, ClassNotFoundException {
         // Job1
 
@@ -36,11 +24,11 @@ public class Driver {
 
         job1.setMapperClass(Preprocess.PreprocessMapper.class);
         job1.setReducerClass(Preprocess.PreprocessReducer.class);
-
+        job1.setInputFormatClass(Preprocess.PreprocessFileInputFormat.class);
         job1.setOutputFormatClass(TextOutputFormat.class);
         Path inputDir = new Path(args[0]);
         FileSystem fs = inputDir.getFileSystem(conf);
-        addInputPaths(fs, inputDir, job1);
+        FileInputFormat.addInputPath(job1, new Path(args[0]));
         FileOutputFormat.setOutputPath(job1, new Path(args[1] + "/output0"));
         job1.waitForCompletion(true);
 //        //job2
