@@ -13,16 +13,30 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.3.0</version>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
+            </plugin>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
                     <archive>
                         <manifest>
-                            <!-- main（）所在的类，注意修改 -->
                             <mainClass>Driver</mainClass>
                         </manifest>
                     </archive>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
                 </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
@@ -55,13 +69,11 @@
             <artifactId>log4j</artifactId>
             <version>1.2.17</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/ncsa.hdf/jhdf5 -->
+        <!-- https://mvnrepository.com/artifact/org.bytedeco/hdf5 -->
         <dependency>
-            <groupId>org.hdfgroup</groupId>
-            <artifactId>hdf-java</artifactId>
-            <version>2.6.1</version>
+            <groupId>io.jhdf</groupId>
+            <artifactId>jhdf</artifactId>
+            <version>0.7.0</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/ncsa.hdf/lib-hdf -->
-
     </dependencies>
 </project>

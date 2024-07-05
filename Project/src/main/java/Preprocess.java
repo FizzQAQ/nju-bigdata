@@ -1,6 +1,6 @@
-
-import ncsa.hdf.hdf5lib.exceptions.HDF5Exception;
-import ncsa.hdf.hdf5lib.exceptions.HDF5LibraryException;
+import io.jhdf.HdfFile;
+import io.jhdf.api.Dataset;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
@@ -15,18 +15,23 @@ import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 
-import ncsa.hdf.hdf5lib.*;
+import org.apache.hadoop.fs.FSDataInputStream;
 
-
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+
 public class Preprocess {
     public static class PreprocessFileInputFormat extends FileInputFormat<NullWritable, Text> {
         @Override
         protected boolean isSplitable(JobContext context, Path filename) {
             return false;
         }
+
         @Override
         public List<InputSplit> getSplits(JobContext job) throws IOException {
             List<InputSplit> splits = new ArrayList<>();
@@ -37,11 +42,12 @@ public class Preprocess {
                 addFilesRecursively(fs, path, splits);
             }
             System.out.println(paths.length);
-            for(Path path :paths){
+            for (Path path : paths) {
                 System.out.println(path.toString());
             }
             return splits;
         }
+
         private void addFilesRecursively(FileSystem fs, Path path, List<InputSplit> splits) throws IOException {
             FileStatus[] fileStatuses = fs.listStatus(path);
 
@@ -53,14 +59,17 @@ public class Preprocess {
                 }
             }
         }
+
         public RecordReader<NullWritable, Text> createRecordReader(InputSplit split, TaskAttemptContext context) throws IOException, InterruptedException {
             return new PreprocessFileRecordReader();
         }
     }
+
     public static class PreprocessFileRecordReader extends RecordReader<NullWritable, Text> {
         private FileSplit fileSplit;
         private Text currentFilePath = new Text();
         private boolean processed = false;
+
         @Override
         public void initialize(InputSplit split, TaskAttemptContext context) throws IOException, InterruptedException {
             this.fileSplit = (FileSplit) split;
@@ -96,43 +105,68 @@ public class Preprocess {
             // No resources to close
         }
     }
+
     public static class PreprocessMapper extends Mapper<NullWritable, Text, Text, Text> {
         @Override
         public void map(NullWritable key, Text value, Context context) throws IOException, InterruptedException {
-            String inputPath =value.toString();
-            read_H5(inputPath,context);
+            String path = value.toString();
+            String out = "";
+            String songId = look_up(path, "/metadata/songs", "song_id");
+            out += look_up(path, "/analysis/songs", "track_id") + ",";
+            out += look_up(path, "/metadata/songs", "title") + ",";
+            out += look_up(path, "/metadata/songs", "artist_name") + ",";
+            out += look_up(path, "/musicbrainz/songs", "year") + ",";
+            out += look_up(path, "/analysis/songs", "duration") + ",";
+            out += look_up(path, "/analysis/songs", "tempo");
+            context.write(new Text(songId), new Text(out));
         }
-        private void read_H5(String filePath,Context context){
-            int fileId = 0;
-            int datasetid=0;
-            int year;
+
+        public String look_up(String path, String Att, String target) {
+            String out = "";
+            File tempFile = null;
             try {
-                fileId = H5.H5Fopen(filePath, HDF5Constants.H5F_ACC_RDONLY, HDF5Constants.H5P_DEFAULT);
-                int[] data = new int[1];
-                datasetid= H5.H5Dopen(fileId, "/musicbrainz/songs/year");
-                try {
-                    H5.H5Dread(datasetid, HDF5Constants.H5T_NATIVE_INT, HDF5Constants.H5S_ALL, HDF5Constants.H5S_ALL, HDF5Constants.H5P_DEFAULT, data);
-                    year=data[0];
-                } catch (HDF5Exception e) {
-                    throw new RuntimeException(e);
+                FileSystem fs = FileSystem.get(new Configuration());
+                Path p = new Path(path);
+                FSDataInputStream inputStream = fs.open(p);
+                tempFile = File.createTempFile("tempHdf5File", ".h5");
+                try (FileOutputStream fileOutputStream = new FileOutputStream(tempFile)) {
+                    byte[] buffer = new byte[10240];
+                    int bytesRead;
+                    while ((bytesRead = inputStream.read(buffer)) != -1) {
+                        fileOutputStream.write(buffer, 0, bytesRead);
+                    }
+                }
+                HdfFile hdfFile = new HdfFile(tempFile);
+                Dataset dataset = hdfFile.getDatasetByPath(Att);
+                Object data = dataset.getData();
+                if (data instanceof LinkedHashMap) {
+                    LinkedHashMap<String, Object> mapdata = (LinkedHashMap<String, Object>) data;
+                    for (Map.Entry<String, Object> entry : mapdata.entrySet()) {
+                        Object v = entry.getValue();
+                        if (entry.getKey().equals(target)) {
+
+                            if (v instanceof int[]) {
+                                out = String.valueOf(((int[]) v)[0]);
+                            } else if (v instanceof String[]) {
+                                out = ((String[]) v)[0];
+                            } else if (v instanceof float[]) {
+                                out = String.valueOf(((float[]) v)[0]);
+                            } else if (v instanceof double[]) {
+                                out = String.valueOf(((double[]) v)[0]);
+                            }
+                        }
+                    }
                 }
 
-                H5.H5Dclose(datasetid);;
-            } catch (HDF5LibraryException e) {
-                throw new RuntimeException(e);
-            }
-            try {
-                context.write(new Text(String.valueOf(year)),new Text(""));
             } catch (IOException e) {
                 throw new RuntimeException(e);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+            } finally {
+                if (tempFile != null && tempFile.exists()) {
+                    tempFile.delete();
+                }
             }
-
-
+            return out;
         }
-
-
     }
 
     public static class PreprocessReducer extends Reducer<Text, Text, Text, Text> {
