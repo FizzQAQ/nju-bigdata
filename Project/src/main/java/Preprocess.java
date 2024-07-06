@@ -41,10 +41,6 @@ public class Preprocess {
             for (Path path : paths) {
                 addFilesRecursively(fs, path, splits);
             }
-            System.out.println(paths.length);
-            for (Path path : paths) {
-                System.out.println(path.toString());
-            }
             return splits;
         }
 

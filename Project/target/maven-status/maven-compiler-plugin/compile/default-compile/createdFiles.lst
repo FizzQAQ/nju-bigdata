@@ -1,4 +1,3 @@
-TEST.class
 UserCount$UserCountReducer.class
 Driver.class
 UserCount$UserCountMapper.class
