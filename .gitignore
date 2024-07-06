@@ -2,3 +2,8 @@ Shakespeare/*
 *.md
 report.html
 assets/*
+Project/target/*
+BigDataLab4/target/*
+BigDataLab3/target/*
+BigDataLab2/target/*
+BigDataLab1/target/*
