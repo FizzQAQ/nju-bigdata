@@ -45,6 +45,9 @@ public class GenreCount {
             }
             if (exist) {
                 for (String towrite : towrites) {
+                    if(towrite.equals("New")){
+                        towrite = "NewAge";
+                    }
                     context.write(key, new Text(towrite));
                 }
 

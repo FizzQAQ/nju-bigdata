@@ -31,7 +31,7 @@ public class LyricsCount {
             String line;
             while ((line = br.readLine()) != null) {
                 if (line.charAt(0) == '%') {
-                    String[] temp = line.split("[%,]");
+                    String[] temp = line.substring(1).split("[%,]");
                     for (String s : temp) {
                         dict.add(s);
                     }

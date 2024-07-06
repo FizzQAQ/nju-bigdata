@@ -112,10 +112,16 @@ public class Preprocess {
             String songId = look_up(path, "/metadata/songs", "song_id");
             out += look_up(path, "/analysis/songs", "track_id") + ",";
             out += look_up(path, "/metadata/songs", "title") + ",";
+            out += look_up(path, "/metadata/songs", "release") + ",";
+            out += look_up(path, "/metadata/songs", "artist_id") + ",";
             out += look_up(path, "/metadata/songs", "artist_name") + ",";
-            out += look_up(path, "/musicbrainz/songs", "year") + ",";
+            out += look_up(path, "/analysis/songs", "mode")+ ",";
+            out += look_up(path, "/analysis/songs", "energy")+ ",";
+            out += look_up(path, "/analysis/songs", "tempo")+ ",";
+            out += look_up(path, "/analysis/songs", "loudness")+ ",";
             out += look_up(path, "/analysis/songs", "duration") + ",";
-            out += look_up(path, "/analysis/songs", "tempo");
+            out += look_up(path, "/analysis/songs", "danceability")+ ",";
+            out += look_up(path, "/musicbrainz/songs", "year") ;
             context.write(new Text(songId), new Text(out));
         }
 
