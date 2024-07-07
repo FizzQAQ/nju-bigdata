@@ -27,61 +27,61 @@ public class Task2Driver {
         }
 
         String[] subInputPath = {inputPath + "/songs", inputPath + "/genres", inputPath + "/lyrics", inputPath + "/users"};
-        String[] subTaskPath = {taskPath + "/mostPopular", taskPath + "/mostPlay", taskPath + "/duration", taskPath + "/frequency"};
-        String[] genres = {"Rock", "Metal", "Pop", "Country", "Rap", "Electronic", "Reggae", "Punk", "RnB", "Jazz", "Blues", "Folk", "Latin", "World","New", "NewAge"};
+        String[] subTaskPath = {taskPath + "/mostPopular", taskPath + "/mostPlay", taskPath + "/duration", taskPath + "/frequency", taskPath + "/genreMining"};
+        String[] genres = {"Rock", "Metal", "Pop", "Country", "Rap", "Electronic", "Reggae", "Punk", "RnB", "Jazz", "Blues", "Folk", "Latin", "World", "NewAge"};
         FileSystem fs = FileSystem.get(conf);
         Path src;
         Path dst;
         conf.set("mapred.textoutputformat.separator", ",");
         // job2_1
-        Job job2_1 = Job.getInstance(conf, "task2.MostPopular");
-
-        job2_1.setJarByClass(MostPopular.class);
-
-        job2_1.setOutputKeyClass(Text.class);
-        job2_1.setOutputValueClass(Text.class);
-
-        job2_1.setMapperClass(MostPopular.MostPopularMapper.class);
-        job2_1.setReducerClass(MostPopular.MostPopularReducer.class);
-
-        job2_1.setInputFormatClass(TextInputFormat.class);
-        job2_1.setOutputFormatClass(TextOutputFormat.class);
-        // 统计最受欢迎的十首歌曲 输入 songs-转化歌曲名称 与 users-获取歌曲播放次数
-        FileInputFormat.addInputPath(job2_1, new Path(subInputPath[0]));
-        FileInputFormat.addInputPath(job2_1, new Path(subInputPath[3]));
-        FileOutputFormat.setOutputPath(job2_1, new Path(subTaskPath[0]));
-
-        job2_1.waitForCompletion(true);
-
-        src = new Path(subTaskPath[0] + "/part-r-00000");
-        dst = new Path(subTaskPath[0] + "/task21.txt");
-        fs.rename(src, dst);
-
-        // job2_2
-        Job job2_2 = Job.getInstance(conf, "task2.MostPlay");
-
-        job2_2.setJarByClass(MostPlay.class);
-
-        job2_2.setOutputKeyClass(Text.class);
-        job2_2.setOutputValueClass(Text.class);
-
-        job2_2.setMapperClass(MostPlay.MostPlayMapper.class);
-        job2_2.setReducerClass(MostPlay.MostPlayReducer.class);
-
-        job2_2.setInputFormatClass(TextInputFormat.class);
-        job2_2.setOutputFormatClass(TextOutputFormat.class);
-
-        // 统计听歌最多的用户和播放次数最多的艺术家 输入 songs-获取艺术家id 与 users-获取用户歌曲播放次数
-        FileInputFormat.addInputPath(job2_2, new Path(subInputPath[0]));
-        FileInputFormat.addInputPath(job2_2, new Path(subInputPath[3]));
-        FileOutputFormat.setOutputPath(job2_2, new Path(subTaskPath[1]));
-
-        job2_2.waitForCompletion(true);
-
-        src = new Path(subTaskPath[1] + "/part-r-00000");
-        dst = new Path(subTaskPath[1] + "/task22.txt");
-        fs.rename(src, dst);
-
+//        Job job2_1 = Job.getInstance(conf, "task2.MostPopular");
+//
+//        job2_1.setJarByClass(MostPopular.class);
+//
+//        job2_1.setOutputKeyClass(Text.class);
+//        job2_1.setOutputValueClass(Text.class);
+//
+//        job2_1.setMapperClass(MostPopular.MostPopularMapper.class);
+//        job2_1.setReducerClass(MostPopular.MostPopularReducer.class);
+//
+//        job2_1.setInputFormatClass(TextInputFormat.class);
+//        job2_1.setOutputFormatClass(TextOutputFormat.class);
+//        // 统计最受欢迎的十首歌曲 输入 songs-转化歌曲名称 与 users-获取歌曲播放次数
+//        FileInputFormat.addInputPath(job2_1, new Path(subInputPath[0]));
+//        FileInputFormat.addInputPath(job2_1, new Path(subInputPath[3]));
+//        FileOutputFormat.setOutputPath(job2_1, new Path(subTaskPath[0]));
+//
+//        job2_1.waitForCompletion(true);
+//
+//        src = new Path(subTaskPath[0] + "/part-r-00000");
+//        dst = new Path(subTaskPath[0] + "/task21.txt");
+//        fs.rename(src, dst);
+//
+//        // job2_2
+//        Job job2_2 = Job.getInstance(conf, "task2.MostPlay");
+//
+//        job2_2.setJarByClass(MostPlay.class);
+//
+//        job2_2.setOutputKeyClass(Text.class);
+//        job2_2.setOutputValueClass(Text.class);
+//
+//        job2_2.setMapperClass(MostPlay.MostPlayMapper.class);
+//        job2_2.setReducerClass(MostPlay.MostPlayReducer.class);
+//
+//        job2_2.setInputFormatClass(TextInputFormat.class);
+//        job2_2.setOutputFormatClass(TextOutputFormat.class);
+//
+//        // 统计听歌最多的用户和播放次数最多的艺术家 输入 songs-获取艺术家id 与 users-获取用户歌曲播放次数
+//        FileInputFormat.addInputPath(job2_2, new Path(subInputPath[0]));
+//        FileInputFormat.addInputPath(job2_2, new Path(subInputPath[3]));
+//        FileOutputFormat.setOutputPath(job2_2, new Path(subTaskPath[1]));
+//
+//        job2_2.waitForCompletion(true);
+//
+//        src = new Path(subTaskPath[1] + "/part-r-00000");
+//        dst = new Path(subTaskPath[1] + "/task22.txt");
+//        fs.rename(src, dst);
+//
         // job2_3
         Job job2_3 = Job.getInstance(conf, "task2.DurationStatistics");
 
@@ -105,14 +105,7 @@ public class Task2Driver {
         dst = new Path(subTaskPath[2] + "/task23.txt");
         fs.rename(src, dst);
 
-        src = dst;
-        FSDataInputStream in = fs.open(src);
-        byte[] pngData = DrawChart.draw1(in);
-        dst = new Path(subTaskPath[2] + "/task23.png");
-        FSDataOutputStream out = fs.create(dst);
-        out.write(pngData);
-        in.close();
-        out.close();
+        drawPng(fs,3 , dst , new Path(subTaskPath[2] + "/task23.png") );
 
         // job2_4_1
         Job job2_4_1 = Job.getInstance(conf, "task2.GenresLyrics");
@@ -121,8 +114,8 @@ public class Task2Driver {
         job2_4_1.setOutputKeyClass(Text.class);
         job2_4_1.setOutputValueClass(Text.class);
 
-        job2_4_1.setMapperClass(FrequencyStatistics.GenresLyricsMapper.class);
-        job2_4_1.setReducerClass(FrequencyStatistics.GenresLyricsReducer.class);
+        job2_4_1.setMapperClass(FrequencyStatistics.GenreLyricsMapper.class);
+        job2_4_1.setReducerClass(FrequencyStatistics.GenreLyricsReducer.class);
 
         job2_4_1.setInputFormatClass(TextInputFormat.class);
         job2_4_1.setOutputFormatClass(TextOutputFormat.class);
@@ -134,7 +127,6 @@ public class Task2Driver {
         job2_4_1.waitForCompletion(true);
 
         src = new Path(subTaskPath[3] + "_temp/part-r-00000");
-
 
         // job2_4_2
         Job job2_4_2 = Job.getInstance(conf, "task2.FrequencyStatistics");
@@ -156,8 +148,6 @@ public class Task2Driver {
         FileInputFormat.addInputPath(job2_4_2, src);
         FileOutputFormat.setOutputPath(job2_4_2, new Path(subTaskPath[3] + "/task24"));
 
-
-
         job2_4_2.waitForCompletion(true);
 
         for (String genre : genres) {
@@ -167,15 +157,82 @@ public class Task2Driver {
         }
         fs.delete(new Path(subTaskPath[3] + "_temp"), true);
 
-        String maxGenreName = conf.get("task24.maxGenreName");
-        src = new Path(subTaskPath[3] + "/task24/" + maxGenreName + ".txt");
+        String maxGenreName = genres[(int) job2_4_2.getCounters().findCounter("genre", "max").getValue()];
+
+
+        drawPng(fs,4 , new Path(subTaskPath[3] + "/task24/" + maxGenreName + ".txt") , new Path(subTaskPath[3] + "/task24/task24.png") );
+
+
+        // job2_5_1
+        Job job2_5_1 = Job.getInstance(conf, "task2.GenreInformation");
+
+        job2_5_1.setJarByClass(GenreMining.class);
+
+        job2_5_1.setOutputKeyClass(Text.class);
+        job2_5_1.setOutputValueClass(Text.class);
+
+        job2_5_1.setMapperClass(GenreMining.GenreInformationMapper.class);
+        job2_5_1.setReducerClass(GenreMining.GenreInformationReducer.class);
+
+        job2_5_1.setInputFormatClass(TextInputFormat.class);
+        job2_5_1.setOutputFormatClass(TextOutputFormat.class);
+
+        FileInputFormat.addInputPath(job2_5_1, new Path(subInputPath[0]));
+        FileInputFormat.addInputPath(job2_5_1, new Path(subInputPath[1]));
+        FileOutputFormat.setOutputPath(job2_5_1, new Path(subTaskPath[4] + "_temp"));
+
+        job2_5_1.waitForCompletion(true);
+
+        src = new Path(subTaskPath[4] + "_temp/part-r-00000");
+
+        // job2_5_2
+        Job job2_5_2 = Job.getInstance(conf, "task2.FrequencyStatistics");
+        job2_5_2.setJarByClass(FrequencyStatistics.class);
+
+        job2_5_2.setOutputKeyClass(Text.class);
+        job2_5_2.setOutputValueClass(Text.class);
+
+        job2_5_2.setMapperClass(GenreMining.GenreMiningMapper.class);
+        job2_5_2.setReducerClass(GenreMining.GenreMiningReducer.class);
+
+        job2_5_2.setInputFormatClass(TextInputFormat.class);
+        job2_5_2.setOutputFormatClass(TextOutputFormat.class);
+
+        FileInputFormat.addInputPath(job2_5_2, src);
+        FileOutputFormat.setOutputPath(job2_5_2, new Path(subTaskPath[4]));
+
+        job2_5_2.waitForCompletion(true);
+
+        src = new Path(subTaskPath[4] + "/part-r-00000");
+        dst = new Path(subTaskPath[4] + "/task25.txt");
+        fs.rename(src, dst);
+
+        drawPng(fs, 5 , dst, new Path(subTaskPath[4] + "/task25.png"));
+
+
+    }
+
+    private static void drawPng(FileSystem fs, int taskId, Path src, Path dst) throws Exception {
+        FSDataInputStream in;
+        FSDataOutputStream out;
+        byte[] pngData = null;
         in = fs.open(src);
-        pngData = DrawChart.draw2(in);
-        dst = new Path(subTaskPath[3]  + "/task24/task24.png");
+        switch (taskId) {
+            case 3:
+                pngData = DrawChart.drawTask3(in);
+                break;
+            case 4:
+                pngData = DrawChart.drawTask4(in);
+                break;
+            case 5:
+                pngData = DrawChart.drawTask5(in);
+                break;
+        }
         out = fs.create(dst);
-        out.write(pngData);
+        if (pngData != null) {
+            out.write(pngData);
+        }
         in.close();
         out.close();
-
     }
 }

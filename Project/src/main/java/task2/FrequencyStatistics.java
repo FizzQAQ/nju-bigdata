@@ -7,16 +7,13 @@ import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 import org.apache.hadoop.mapreduce.lib.output.MultipleOutputs;
 
 import java.io.IOException;
-import java.util.AbstractMap;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 public class FrequencyStatistics {
-    public static class GenresLyricsMapper extends Mapper<Object, Text, Text, Text> {
+    public static class GenreLyricsMapper extends Mapper<Object, Text, Text, Text> {
         @Override
         public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
             FileSplit file = (FileSplit) context.getInputSplit();
@@ -34,7 +31,7 @@ public class FrequencyStatistics {
         }
     }
 
-    public static class GenresLyricsReducer extends Reducer<Text, Text, Text, Text> {
+    public static class GenreLyricsReducer extends Reducer<Text, Text, Text, Text> {
         @Override
         public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
             ArrayList<String> lyrics = new ArrayList<>();
@@ -64,6 +61,7 @@ public class FrequencyStatistics {
     }
 
     public static class FrequencyStatisticsReducer extends Reducer<Text, Text, Text, Text> {
+
         private MultipleOutputs<Text, Text> mos;
 
         @Override
@@ -77,14 +75,10 @@ public class FrequencyStatistics {
         @Override
         public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
 
-            int cnt = (int) StreamSupport.stream(values.spliterator(), false).count();
-            if(cnt > maxGenreCnt){
-                maxGenreCnt = cnt;
-                maxGenreName = key.toString();
-            }
-
+            final int[] cnt = {0};
             Stream<Map.Entry<String, Integer>> combinedStream = StreamSupport.stream(values.spliterator(), false)
                     .map(Text::toString)
+                    .peek(s -> cnt[0]++)
                     .flatMap(input -> Arrays.stream(input.split(","))
                             .map(pair -> {
                                 String[] parts = pair.split(":");
@@ -97,6 +91,11 @@ public class FrequencyStatistics {
                     Integer::sum
             ));
 
+            if (cnt[0] > maxGenreCnt) {
+                maxGenreCnt = cnt[0];
+                maxGenreName = key.toString();
+            }
+            //System.out.println(cnt[0]);
 
             for (Map.Entry<String, Integer> e : mergedMap.entrySet()) {
                 mos.write(new Text(e.getKey()), new Text(String.valueOf(e.getValue())), key.toString());
@@ -107,7 +106,13 @@ public class FrequencyStatistics {
         @Override
         protected void cleanup(Context context) throws IOException, InterruptedException {
             mos.close();
-            context.getConfiguration().set("task24.maxGenreName", maxGenreName);
+            String[] genres = {"Rock", "Metal", "Pop", "Country", "Rap", "Electronic", "Reggae", "Punk", "RnB", "Jazz", "Blues", "Folk", "Latin", "World", "NewAge"};
+            System.out.println(maxGenreName);
+            for (int i = 0; i < genres.length; i++) {
+                if (maxGenreName.equals(genres[i])) {
+                    context.getCounter("genre","max").setValue(i);
+                }
+            }
         }
 
     }
