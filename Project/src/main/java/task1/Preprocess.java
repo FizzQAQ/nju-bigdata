@@ -35,10 +35,10 @@ public class Preprocess {
         }
 
         @Override
-        public List<InputSplit> getSplits(JobContext job) throws IOException {
+        public List<InputSplit> getSplits(JobContext job) throws IOException {//重载文件分块
             List<InputSplit> splits = new ArrayList<>();
             FileSystem fs = FileSystem.get(job.getConfiguration());
-            Path[] paths = FileInputFormat.getInputPaths(job);
+            Path[] paths = FileInputFormat.getInputPaths(job);//将songs文件以及其子目录下的所有文件加入输入
 
             for (Path path : paths) {
                 addFilesRecursively(fs, path, splits);
@@ -46,7 +46,7 @@ public class Preprocess {
             return splits;
         }
 
-        private void addFilesRecursively(FileSystem fs, Path path, List<InputSplit> splits) throws IOException {
+        private void addFilesRecursively(FileSystem fs, Path path, List<InputSplit> splits) throws IOException {//递归输入文件路径的工具函数
             FileStatus[] fileStatuses = fs.listStatus(path);
 
             for (FileStatus fileStatus : fileStatuses) {
@@ -71,7 +71,7 @@ public class Preprocess {
         @Override
         public void initialize(InputSplit split, TaskAttemptContext context) throws IOException, InterruptedException {
             this.fileSplit = (FileSplit) split;
-            this.currentFilePath.set(fileSplit.getPath().toString());
+            this.currentFilePath.set(fileSplit.getPath().toString());//将文件路径作为输入的value
         }
 
         @Override
@@ -107,9 +107,9 @@ public class Preprocess {
     public static class PreprocessMapper extends Mapper<NullWritable, Text, Text, Text> {
         @Override
         public void map(NullWritable key, Text value, Context context) throws IOException, InterruptedException {
-            String path = value.toString();
+            String path = value.toString();//输入为文件路径
             String out = "";
-            String songId = look_up(path, "/metadata/songs", "song_id");
+            String songId = look_up(path, "/metadata/songs", "song_id");//利用工具函数解析路径对应文件以及其中的数据
             out += look_up(path, "/analysis/songs", "track_id") + ",";
             out += look_up(path, "/metadata/songs", "title") + ",";
             out += look_up(path, "/metadata/songs", "release") + ",";
@@ -129,10 +129,10 @@ public class Preprocess {
             String out = "";
             File tempFile = null;
             try {
-                FileSystem fs = FileSystem.get(new Configuration());
+                FileSystem fs = FileSystem.get(new Configuration());//在hdfs文件系统上操作
                 Path p = new Path(path);
-                FSDataInputStream inputStream = fs.open(p);
-                tempFile = File.createTempFile("tempHdf5File", ".h5");
+                FSDataInputStream inputStream = fs.open(p);//查询路径
+                tempFile = File.createTempFile("tempHdf5File", ".h5");//创建临时文件便于解析
                 try (FileOutputStream fileOutputStream = new FileOutputStream(tempFile)) {
                     byte[] buffer = new byte[10240];
                     int bytesRead;
@@ -141,13 +141,13 @@ public class Preprocess {
                     }
                 }
                 HdfFile hdfFile = new HdfFile(tempFile);
-                Dataset dataset = hdfFile.getDatasetByPath(Att);
-                Object data = dataset.getData();
+                Dataset dataset = hdfFile.getDatasetByPath(Att);//查询数据集
+                Object data = dataset.getData();//查询数据
                 if (data instanceof LinkedHashMap) {
                     LinkedHashMap<String, Object> mapdata = (LinkedHashMap<String, Object>) data;
                     for (Map.Entry<String, Object> entry : mapdata.entrySet()) {
                         Object v = entry.getValue();
-                        if (entry.getKey().equals(target)) {
+                        if (entry.getKey().equals(target)) {//根据数据类型实例化数据并读出
 
                             if (v instanceof int[]) {
                                 out = String.valueOf(((int[]) v)[0]);

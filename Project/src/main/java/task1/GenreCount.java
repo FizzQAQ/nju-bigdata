@@ -15,14 +15,14 @@ public class GenreCount {
         public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
             FileSplit file = (FileSplit) context.getInputSplit();
             String fileName = file.getPath().getName();
-            if (fileName.equals("songs.txt")) {
+            if (fileName.equals("songs.txt")) {//分辨是歌曲信息输入还是流派输入
                 String[] temp = value.toString().split("[ ,\t]");
-                context.write(new Text(temp[1]), new Text("ISEXIST"));
+                context.write(new Text(temp[1]), new Text("ISEXIST"));//得到歌曲trackid，并表示为存在
                 //System.out.println(key.toString()+","+"ISEXIST");
             } else {
                 String[] temp = value.toString().split("[ ,\t]");
                 if (temp[0].charAt(0) != '#' && temp[0].charAt(0) != '%') {
-                    context.write(new Text(temp[0]), new Text(temp[1]));
+                    context.write(new Text(temp[0]), new Text(temp[1]));//得到歌曲trackid，并将value表示为流派
                     //System.out.println(temp[0]+","+temp[1]);
                 }
             }
@@ -38,7 +38,7 @@ public class GenreCount {
                 String isexist = value.toString();
                 //System.out.println(key.toString()+","+isexist);
                 if (isexist.equals("ISEXIST")) {
-                    exist = true;
+                    exist = true;//如果该歌曲在songs文件中确实存在则进行写入，否则查询不到songs信息则不写入
                 } else {
                     towrites.add(isexist);
                 }
@@ -48,7 +48,7 @@ public class GenreCount {
                     if(towrite.equals("New")){
                         towrite = "NewAge";
                     }
-                    context.write(key, new Text(towrite));
+                    context.write(key, new Text(towrite));//如果存在则写入信息。
                 }
 
             }

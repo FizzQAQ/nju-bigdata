@@ -17,12 +17,12 @@ public class UserCount {
             String fileName = file.getPath().getName();
             if (fileName.equals("songs.txt")) {
                 String[] temp = value.toString().split("[ ,\t]");
-                context.write(new Text(temp[0]), new Text("ISEXIST"));
+                context.write(new Text(temp[0]), new Text("ISEXIST"));//如果是songs文件则写入该行的songid并表示为存在
                 //System.out.println(key.toString()+","+"ISEXIST");
             } else {
                 String[] temp = value.toString().split("[ ,\t]");
                 if (temp[0].charAt(0) != '#' && temp[0].charAt(0) != '%') {
-                    context.write(new Text(temp[1]), new Text(temp[0] + "," + temp[2]));
+                    context.write(new Text(temp[1]), new Text(temp[0] + "," + temp[2]));//写入songid，用户id以及数据，将根据songid进行收集
                 }
             }
         }
@@ -35,7 +35,7 @@ public class UserCount {
             List<String> towrites = new ArrayList<>();
             for (Text value : values) {
                 String isexist = value.toString();
-                if (isexist.equals("ISEXIST")) {
+                if (isexist.equals("ISEXIST")) {//如果songid存在则进行写入
                     exist = true;
                 } else {
                     towrites.add(isexist);
@@ -47,7 +47,7 @@ public class UserCount {
                     String userid=tmp[0];
                     String count=tmp[1];
                     String songid=key.toString();
-                    context.write(new Text(userid),new Text(songid+","+count));
+                    context.write(new Text(userid),new Text(songid+","+count));//输出用户id，songid，以及听歌次数
                 }
             }
         }

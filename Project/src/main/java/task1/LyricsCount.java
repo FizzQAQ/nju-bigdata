@@ -20,7 +20,7 @@ import org.apache.hadoop.mapreduce.lib.input.*;
 
 public class LyricsCount {
     public static class LyricsCountMapper extends Mapper<Object, Text, Text, Text> {
-        private List<String> dict = new ArrayList<String>();
+        private List<String> dict = new ArrayList<String>();//创建歌词的字典
 
         @Override
         protected void setup(Context context) throws IOException, InterruptedException {
@@ -30,10 +30,10 @@ public class LyricsCount {
             BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
             String line;
             while ((line = br.readLine()) != null) {
-                if (line.charAt(0) == '%') {
+                if (line.charAt(0) == '%') {//如果该行是歌词字典信息
                     String[] temp = line.substring(1).split("[%,]");
                     for (String s : temp) {
-                        dict.add(s);
+                        dict.add(s);//创建字典
                     }
                     break;
                 }
@@ -47,7 +47,7 @@ public class LyricsCount {
             String fileName = file.getPath().getName();
             if (fileName.equals("songs.txt")) {
                 String[] temp = value.toString().split("[ ,\t]");
-                context.write(new Text(temp[1]), new Text("ISEXIST"));
+                context.write(new Text(temp[1]), new Text("ISEXIST"));//如果输入是songs信息则写入trackid并将该歌曲标识为存在
                 //System.out.println(key.toString()+","+"ISEXIST");
             } else {
                 String[] temp = value.toString().split("[ ,]");
@@ -56,9 +56,9 @@ public class LyricsCount {
                     int length = temp.length;
                     for (int i = 2; i < length; i++) {
                         String[] secondtemp = temp[i].split(":");
-                        String word = dict.get(Integer.parseInt(secondtemp[0]) - 1);
+                        String word = dict.get(Integer.parseInt(secondtemp[0]) - 1);//根据字典将index转化为词
                         word += ":" + secondtemp[1];
-                        context.write(new Text(track_id), new Text(word));
+                        context.write(new Text(track_id), new Text(word));//写入trackid以及歌词信息
                     }
                 }
             }
@@ -72,7 +72,7 @@ public class LyricsCount {
             List<String> towrites = new ArrayList<>();
             for (Text value : values) {
                 String isexist = value.toString();
-                if (isexist.equals("ISEXIST")) {
+                if (isexist.equals("ISEXIST")) {//如果trackid确实在songs中存在，则进行写入否则不写入
                     exist = true;
                 } else {
                     towrites.add(isexist);
@@ -86,7 +86,7 @@ public class LyricsCount {
                 int i = out.length();
                 StringBuilder sb = new StringBuilder(out);
                 sb.replace(i - 1, i, String.valueOf(']'));
-                context.write(key, new Text(sb.toString()));
+                context.write(key, new Text(sb.toString()));//格式化写入
             }
         }
     }
