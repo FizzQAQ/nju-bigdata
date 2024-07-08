@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+
 public class FrequencyStatistics {
     public static class GenreLyricsMapper extends Mapper<Object, Text, Text, Text> {
         @Override

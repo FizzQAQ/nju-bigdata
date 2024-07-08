@@ -20,6 +20,7 @@ public class DurationStatistics {
             if (x > 9) {
                 x = 9;
             }
+            // 写入时长区间，与数量
             context.write(new Text(String.valueOf(x)), new Text("1"));
         }
     }
@@ -31,6 +32,7 @@ public class DurationStatistics {
             int l = 60 * Integer.parseInt(key.toString());
             int r = 60 + l;
             int cnt = 0;
+            // 计算该区间的歌曲计数
             for (Text value : values) {
                 cnt += Integer.parseInt(value.toString());
             }
