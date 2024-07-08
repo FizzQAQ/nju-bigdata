@@ -46,7 +46,8 @@ public class GenreMining {
             String duration = "";
             String danceability = "";
             String genre = "";
-            for (Text value : values) {
+            for (Text value : values) // 根据字符串的标记输出对应值即可
+            {
                 String s = value.toString();
                 if (s.startsWith("@genre:")) {
                     genre = s.substring(7);
@@ -72,7 +73,7 @@ public class GenreMining {
     public static class GenreMiningMapper extends Mapper<Object, Text, Text, Text> {
         @Override
         public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
-            String[] temp = value.toString().split(",", 2);
+            String[] temp = value.toString().split(",", 2); // 设置limit = 2 分割一次即可
             context.write(new Text(temp[0]), new Text(temp[1]));
         }
     }
@@ -82,17 +83,19 @@ public class GenreMining {
         public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
 
             final int[] cnt = {0};
-            double[] sums = StreamSupport.stream(values.spliterator(), false)
-                    .map(Text::toString)
-                    .peek(s -> cnt[0]++)
-                    .map(s -> s.split(","))
-                    .map(s -> Arrays.stream(s).mapToDouble(Double::parseDouble).toArray())
+            // 流操作
+            double[] sums = StreamSupport.stream(values.spliterator(), false)   // 转为Text流
+                    .map(Text::toString)   // 转为String流
+                    .peek(s -> cnt[0]++)    // cnt计数，便于后续求和后求平均值
+                    .map(s -> s.split(",")) // 分割字符串，转为String[]流
+                    .map(s -> Arrays.stream(s).mapToDouble(Double::parseDouble).toArray())  // 转为double[]流
                     .reduce(new double[5], (acc, parts) -> {
                         for (int i = 0; i < parts.length; i++) {
                             acc[i] += parts[i];
                         }
                         return acc;
-                    });
+                    });     // 归约合并，合并为一个求和后的double[]
+            // 计算平均数，构造结果字符串
             String res = "";
             for (double sum : sums) {
                 sum /= cnt[0];

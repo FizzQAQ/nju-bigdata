@@ -187,7 +187,7 @@ public class Task2Driver {
 
         src = new Path(subTaskPath[4] + "_temp/part-r-00000");
 
-        // job2_5_2 根据job2_4_1得到的Genre-属性键值对，计算平均值绘制折线图
+        // job2_5_2 根据job2_5_1得到的Genre-属性键值对，计算平均值绘制折线图
         Job job2_5_2 = Job.getInstance(conf, "task2.GenreMining");
         job2_5_2.setJarByClass(FrequencyStatistics.class);
 
@@ -199,12 +199,11 @@ public class Task2Driver {
 
         job2_5_2.setInputFormatClass(TextInputFormat.class);
         job2_5_2.setOutputFormatClass(TextOutputFormat.class);
-
+        // 输入为job2_5_1的输出
         FileInputFormat.addInputPath(job2_5_2, src);
         FileOutputFormat.setOutputPath(job2_5_2, new Path(subTaskPath[4]));
 
         job2_5_2.waitForCompletion(true);
-
         src = new Path(subTaskPath[4] + "/part-r-00000");
         dst = new Path(subTaskPath[4] + "/task25.txt");
         fs.rename(src, dst);

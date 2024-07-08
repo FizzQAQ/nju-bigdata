@@ -39,13 +39,15 @@ public class FrequencyStatistics {
             String genre = "";
             for (Text value : values) {
                 String s = value.toString();
-                if (s.startsWith("@genre:")) {
+                if (s.startsWith("@genre:"))  // 检测到genre标记，设置genre值
+                {
                     genre = s.substring(7);
                 } else {
                     lyrics.add(s);
                 }
             }
-            if (!genre.isEmpty()) {
+            if (!genre.isEmpty())  // 若此track有genre记录，则写入其genre-lyric键值对
+            {
                 for (String lyric : lyrics) {
                     context.write(new Text(genre), new Text(lyric));
                 }
@@ -56,7 +58,7 @@ public class FrequencyStatistics {
     public static class FrequencyStatisticsMapper extends Mapper<Object, Text, Text, Text> {
         @Override
         public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
-            String[] temp = value.toString().split(",", 2);
+            String[] temp = value.toString().split(",", 2); // limit设置为2,只分割一次即可
             context.write(new Text(temp[0]), new Text(temp[1]));
         }
     }
@@ -77,27 +79,24 @@ public class FrequencyStatistics {
         public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
 
             final int[] cnt = {0};
-            Stream<Map.Entry<String, Integer>> combinedStream = StreamSupport.stream(values.spliterator(), false)
-                    .map(Text::toString)
-                    .peek(s -> cnt[0]++)
-                    .flatMap(input -> Arrays.stream(input.split(","))
+            // 流操作
+            Stream<Map.Entry<String, Integer>> combinedStream = StreamSupport.stream(values.spliterator(), false).map(Text::toString)    // Text转为int
+                    .peek(s -> cnt[0]++)    // 计数歌曲数量
+                    .flatMap(input -> Arrays.stream(input.split(",")) // 扁平化，将string流先按","分割后合并
                             .map(pair -> {
-                                String[] parts = pair.split(":");
+                                String[] parts = pair.split(":"); // 按:进行分割
                                 return new AbstractMap.SimpleEntry<>(parts[0], Integer.parseInt(parts[1]));
-                            })
+                            })  //  映射，将字符串映射为map的键值对
                     );
-            Map<String, Integer> mergedMap = combinedStream.collect(Collectors.toMap(
-                    Map.Entry::getKey,
-                    Map.Entry::getValue,
-                    Integer::sum
-            ));
+            // 将合并流转为Map,合并方法用sum求和即可
+            Map<String, Integer> mergedMap = combinedStream.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, Integer::sum));
 
+            // 更新歌曲数最多的流派
             if (cnt[0] > maxGenreCnt) {
                 maxGenreCnt = cnt[0];
                 maxGenreName = key.toString();
             }
-            //System.out.println(cnt[0]);
-
+            // 将键值对 词-词频 写入文件
             for (Map.Entry<String, Integer> e : mergedMap.entrySet()) {
                 mos.write(new Text(e.getKey()), new Text(String.valueOf(e.getValue())), key.toString());
             }
@@ -108,10 +107,10 @@ public class FrequencyStatistics {
         protected void cleanup(Context context) throws IOException, InterruptedException {
             mos.close();
             String[] genres = {"Rock", "Metal", "Pop", "Country", "Rap", "Electronic", "Reggae", "Punk", "RnB", "Jazz", "Blues", "Folk", "Latin", "World", "NewAge"};
-            System.out.println(maxGenreName);
+            // 将计数器更新，值为流派在数组中的下标
             for (int i = 0; i < genres.length; i++) {
                 if (maxGenreName.equals(genres[i])) {
-                    context.getCounter("genre","max").setValue(i);
+                    context.getCounter("genre", "max").setValue(i);
                 }
             }
         }

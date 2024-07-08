@@ -12,16 +12,12 @@ import com.kennycason.kumo.WordFrequency;
 import com.kennycason.kumo.bg.RectangleBackground;
 import com.kennycason.kumo.font.scale.LinearFontScalar;
 import com.kennycason.kumo.palette.ColorPalette;
-import com.kennycason.kumo.wordstart.CenterWordStart;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
 import java.util.stream.Collectors;
 
 public class DrawChart {
