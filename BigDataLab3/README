@@ -1,0 +1,2 @@
+JAR 包执行方式说明：
+hadoop jar /path/to/Count-1.0-SNAPSHOT.jar input output
