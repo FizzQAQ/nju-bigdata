@@ -13,7 +13,10 @@ import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import java.io.IOException;
 
 public class Task1Driver {
-    public static void driver(Configuration conf, String[] args) throws IOException, InterruptedException, ClassNotFoundException {
+    static String[] subTaskPath = {};
+
+    public static void driver(Configuration conf, String[] args)
+            throws IOException, InterruptedException, ClassNotFoundException {
         // jar ****.jar 0path/to/dataSet
         // jar ****.jar 0path/to/dataSet path/to/task1/output
         // jar ****.jar 0path/to/dataSet path/to/task1/output path/to/task2/output
@@ -29,11 +32,12 @@ public class Task1Driver {
         if (args.length > 1) {
             taskPath = args[1];
         }
-        String[] subTaskPath = {taskPath + "/songs", taskPath + "/genres", taskPath + "/lyrics", taskPath + "/users"};
+        subTaskPath = new String[] { taskPath + "/songs", taskPath + "/genres", taskPath + "/lyrics",
+                taskPath + "/users" };
 
-        //configuration
+        // configuration
         conf.set("mapred.textoutputformat.separator", ",");
-        conf.set("dictpath", lyricsPath + "/lyric1.txt");//设置字典路径，歌词字典只需要设置一次
+        conf.set("dictpath", lyricsPath + "/lyric1.txt");// 设置字典路径，歌词字典只需要设置一次
 
         FileSystem fs = FileSystem.get(conf);
 
@@ -48,7 +52,7 @@ public class Task1Driver {
         job1_1.setMapperClass(Preprocess.PreprocessMapper.class);
         job1_1.setReducerClass(Preprocess.PreprocessReducer.class);
 
-        job1_1.setInputFormatClass(Preprocess.PreprocessFileInputFormat.class);//重载输入格式，将每个map结点的输入改为单个文件，方便格式化处理
+        job1_1.setInputFormatClass(Preprocess.PreprocessFileInputFormat.class);// 重载输入格式，将每个map结点的输入改为单个文件，方便格式化处理
         job1_1.setOutputFormatClass(TextOutputFormat.class);
 
         FileInputFormat.addInputPath(job1_1, new Path(songsPath));
@@ -57,10 +61,10 @@ public class Task1Driver {
         job1_1.waitForCompletion(true);
 
         Path src = new Path(subTaskPath[0] + "/part-r-00000");
-        Path dst = new Path(subTaskPath[0] + "/songs.txt");//修改文件名称
+        Path dst = new Path(subTaskPath[0] + "/songs.txt");// 修改文件名称
         fs.rename(src, dst);
 
-        //job1_2
+        // job1_2
         Job job1_2 = Job.getInstance(conf, "task1.GenreCount");
 
         job1_2.setJarByClass(GenreCount.class);
@@ -74,19 +78,17 @@ public class Task1Driver {
         job1_2.setInputFormatClass(TextInputFormat.class);
         job1_2.setOutputFormatClass(TextOutputFormat.class);
 
-
-        FileInputFormat.addInputPath(job1_2, new Path(genresPath));//添加流派输入文件
-        FileInputFormat.addInputPath(job1_2, new Path(subTaskPath[0]));//添加歌曲信息输入文件
+        FileInputFormat.addInputPath(job1_2, new Path(genresPath));// 添加流派输入文件
+        FileInputFormat.addInputPath(job1_2, new Path(subTaskPath[0]));// 添加歌曲信息输入文件
         FileOutputFormat.setOutputPath(job1_2, new Path(subTaskPath[1]));
 
         job1_2.waitForCompletion(true);
 
         src = new Path(subTaskPath[1] + "/part-r-00000");
-        dst = new Path(subTaskPath[1] + "/genres.txt");//修改文件名称
+        dst = new Path(subTaskPath[1] + "/genres.txt");// 修改文件名称
         fs.rename(src, dst);
 
-
-        //job1_3
+        // job1_3
         Job job1_3 = Job.getInstance(conf, "task1.LyricsCount");
 
         job1_3.setJarByClass(LyricsCount.class);
@@ -100,8 +102,8 @@ public class Task1Driver {
         job1_3.setInputFormatClass(TextInputFormat.class);
         job1_3.setOutputFormatClass(TextOutputFormat.class);
 
-        FileInputFormat.addInputPath(job1_3, new Path(lyricsPath));//加入songs信息
-        FileInputFormat.addInputPath(job1_3, new Path(subTaskPath[0]));//加入歌词信息文件
+        FileInputFormat.addInputPath(job1_3, new Path(lyricsPath));// 加入songs信息
+        FileInputFormat.addInputPath(job1_3, new Path(subTaskPath[0]));// 加入歌词信息文件
         FileOutputFormat.setOutputPath(job1_3, new Path(subTaskPath[2]));
 
         job1_3.waitForCompletion(true);
@@ -111,10 +113,9 @@ public class Task1Driver {
         dst = new Path(subTaskPath[2] + "/lyrics.txt");
         fs.rename(src, dst);
 
-        //job1_4
+        // job1_4
         Job job1_4 = Job.getInstance(conf, "task1.UserCount");
         job1_4.setJarByClass(UserCount.class);
-
 
         job1_4.setOutputKeyClass(Text.class);
         job1_4.setOutputValueClass(Text.class);
@@ -125,8 +126,8 @@ public class Task1Driver {
         job1_4.setInputFormatClass(TextInputFormat.class);
         job1_4.setOutputFormatClass(TextOutputFormat.class);
 
-        FileInputFormat.addInputPath(job1_4, new Path(usersPath));//输入用户信息
-        FileInputFormat.addInputPath(job1_4, new Path(subTaskPath[0]));//输入songs信息
+        FileInputFormat.addInputPath(job1_4, new Path(usersPath));// 输入用户信息
+        FileInputFormat.addInputPath(job1_4, new Path(subTaskPath[0]));// 输入songs信息
         FileOutputFormat.setOutputPath(job1_4, new Path(subTaskPath[3]));
 
         job1_4.waitForCompletion(true);
@@ -134,7 +135,9 @@ public class Task1Driver {
         src = new Path(subTaskPath[3] + "/part-r-00000");
         dst = new Path(subTaskPath[3] + "/users.txt");
         fs.rename(src, dst);
+    }
 
-
+    public static String[] getSubTaskPath() {
+        return subTaskPath;
     }
 }

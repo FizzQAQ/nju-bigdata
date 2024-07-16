@@ -1,8 +1,7 @@
 import org.apache.hadoop.conf.Configuration;
 import task1.Task1Driver;
 import task2.Task2Driver;
-
-import java.io.IOException;
+import task3.Task3Driver;
 
 public class Driver {
     public static void main(String[] args) throws Exception {
@@ -11,10 +10,12 @@ public class Driver {
         // jar ****.jar path/to/dataSet
         // jar ****.jar path/to/dataSet path/to/task1/output
         // jar ****.jar path/to/dataSet path/to/task1/output path/to/task2/output
-        // jar ****.jar path/to/dataSet path/to/task1/output path/to/task2/output path/to/task3/output
-        //configuration
+        // jar ****.jar path/to/dataSet path/to/task1/output path/to/task2/output
+        // path/to/task3/output
+        // configuration
         Configuration conf = new Configuration();
-        Task1Driver.driver(conf,args);
-        Task2Driver.driver(conf,args);
+        Task1Driver.driver(conf, args);
+        Task2Driver.driver(conf, args);
+        Task3Driver.driver(conf, args);
     }
 }

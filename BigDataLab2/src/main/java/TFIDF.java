@@ -35,18 +35,6 @@ public class TFIDF {
                 }
                 totalWords += 1.0;
             }
-            // StringTokenizer itr = new StringTokenizer(value.toString(),
-            // "\t\n\r\f,.:;?![]\"\40-()'");
-            // while (itr.hasMoreTokens()) {
-            // String token = itr.nextToken();
-            // token = token.toLowerCase();
-            // if (hashMap.containsKey(token)) {
-            // hashMap.put(token, hashMap.get(token) + 1.0);
-            // } else {
-            // hashMap.put(token, 1.0);
-            // }
-            // totalWords += 1.0;
-            // }
             for (String token : hashMap.keySet()) {
                 // key: 词名，value: (文件名，TF)
                 context.write(new Text(token), new Text(fileName + " " + hashMap.get(token) / totalWords));
